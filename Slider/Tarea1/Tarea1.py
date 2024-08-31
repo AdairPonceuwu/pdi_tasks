@@ -2,9 +2,21 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
+import argparse
 
-cap = cv.VideoCapture(0)
+parser = argparse.ArgumentParser()
 
+parser.add_argument("index_camera", help="No encontrada", type=int)
+args = parser.parse_args()
+
+# We create a VideoCapture object to read from the camera (pass 0):
+cap = cv.VideoCapture(args.index_camera)
+
+
+if cap.isOpened() is False:
+    print("Error opening the camera")
+    exit()
+    
 plt.ion()  # ventana interactiva
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 plt.subplots_adjust(bottom=0.35)  
@@ -79,45 +91,44 @@ button = Button(resetax, 'Reset', color='gold',
 button.on_clicked(resetSlider)
 
 # Bandera para indicar si se debe cerrar
-should_close = False
+flag = False
 
-def on_key(event):
-    global should_close
+def exit(event):
+    global flag
     if event.key == 'e':
-        should_close = True
+        flag = True
 
-fig.canvas.mpl_connect('key_press_event', on_key)
+fig.canvas.mpl_connect('key_press_event', exit)
 
-try:
-    while not should_close:
-        ret, frame = cap.read()
-        if not ret:
-            print("No se pudo capturar el video.")
-            break
+while not flag:
+    ret, frame = cap.read()
+    if not ret:
+        print("No se pudo capturar el video.")
+        break
 
-        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+    hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
-        #Creamos dos arreglos para crear la maskara hsv
-        lower = np.array([lower_h, lower_s, lower_v], dtype=np.uint8)
-        upper = np.array([upper_h, upper_s, upper_v], dtype=np.uint8)
+    #Creamos dos arreglos para crear la maskara hsv
+    lower = np.array([lower_h, lower_s, lower_v], dtype=np.uint8)
+    upper = np.array([upper_h, upper_s, upper_v], dtype=np.uint8)
+      
+    # Crear una máscara basada en los valores de H, S, V
+    mask = cv.inRange(hsv, lower, upper)
         
-        # Crear una máscara basada en los valores de H, S, V
-        mask = cv.inRange(hsv, lower, upper)
+    res = cv.bitwise_and(frame, frame, mask=mask)
         
-        res = cv.bitwise_and(frame, frame, mask=mask)
+    # Convertir de HSV a RGB para mostrar en plt
+    frame_rgb = cv.cvtColor(hsv, cv.COLOR_HSV2RGB)
         
-        # Convertir de HSV a RGB para mostrar en plt
-        frame_rgb = cv.cvtColor(hsv, cv.COLOR_HSV2RGB)
-        
-        #Actualizamos los dos recuadros 
-        im1.set_data(frame_rgb)
-        im2.set_data(res)
+    #Actualizamos los dos recuadros 
+    im1.set_data(frame_rgb)
+    im2.set_data(res)
 
-        #Moestramos los nuevos fotogramas
-        plt.draw()
-        plt.pause(0.2) 
+    #Moestramos los nuevos fotogramas
+    plt.draw()
+    plt.pause(0.2) 
 
-finally:
-    # Liberar los recursos al salir
-    cap.release()
-    plt.close('all')
+
+# Liberar los recursos al salir
+cap.release()
+plt.close('all')
