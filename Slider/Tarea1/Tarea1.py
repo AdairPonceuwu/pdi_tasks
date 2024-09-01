@@ -9,9 +9,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("index_camera", help="No encontrada", type=int)
 args = parser.parse_args()
 
-# We create a VideoCapture object to read from the camera (pass 0):
+# We create a VideoCapture object to read from the camera (pass args):
 cap = cv.VideoCapture(args.index_camera)
-
 
 if cap.isOpened() is False:
     print("Error opening the camera")
@@ -23,13 +22,13 @@ plt.subplots_adjust(bottom=0.35)
 
 # Leer el primer fotograma para inicializar las imágenes en los subgráficos
 #Convertimos el frame a rgb para plt
-ret, frame = cap.read()
-frame_rgb = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+_ , frame = cap.read()
+frame_rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
 # Inicializar los subgráficos con la imagen original y la enmascarada
 im1 = ax1.imshow(frame_rgb)
 ax1.set_title('ORIGINAL')
-im2 = ax2.imshow(frame_rgb)
+im2 = ax2.imshow(frame, cmap='gray')
 ax2.set_title('MASK')
 
 # Valores iniciales para los sliders
@@ -115,14 +114,14 @@ while not flag:
     # Crear una máscara basada en los valores de H, S, V
     mask = cv.inRange(hsv, lower, upper)
         
-    res = cv.bitwise_and(frame, frame, mask=mask)
+    #res = cv.bitwise_and(frame_rgb, frame_rgb, mask=mask)
         
     # Convertir de HSV a RGB para mostrar en plt
     frame_rgb = cv.cvtColor(hsv, cv.COLOR_HSV2RGB)
-        
+    
     #Actualizamos los dos recuadros 
     im1.set_data(frame_rgb)
-    im2.set_data(res)
+    im2.set_data(mask)
 
     #Moestramos los nuevos fotogramas
     plt.draw()
