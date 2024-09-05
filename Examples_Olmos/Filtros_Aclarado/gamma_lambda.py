@@ -15,10 +15,17 @@ image_BGR = cv2.imread(args['image'])
 image_RGB = cv2.cvtColor(image_BGR, cv2.COLOR_BGR2RGB)
 gamma = float(args["gamma"])
 
-#image_RGB_gamma = np.array(255*(image_RGB / 255)**gamma, dtype="uint8")
+x = np.linspace(0, 255, 256)  # Corrected to include 256 values
 
-gamma_correction = lambda img, g: np.array(255 * (img / 255) ** g, dtype="uint8")
-image_RGB_gamma = gamma_correction(image_RGB, gamma)
+# Logarithmic transformation lookup table
+y2 = np.array(255 * (x / 255) ** gamma, dtype="uint8")
+
+# Define gamma function using the lookup table
+gamma = lambda m: y2[m]
+
+# Apply the gamma transformation to the image
+image_RGB_gamma = np.array(np.vectorize(gamma)(image_RGB), dtype='uint8')
+
 
 # se genera una figura para mostrar los resultados con matplotlib
 fig=plt.figure(figsize=(14,10))
@@ -34,18 +41,8 @@ ax2.imshow(image_RGB_gamma)
 ax2.set_title('Gamma Correction')
 #Se dibujan las graficas de las funciones
 
-# y1=x
-# y2=np.array(255*(x/255)**gamma)
 
-x=np.linspace(0,255,255)
-
-identity_function = lambda x: x
-gamma_function = lambda x, g: 255 * (x / 255) ** g
-
-y1 = identity_function(x)
-y2 = gamma_function(x, gamma)
-
-ax3.plot(x,y1,color="r",linewidth=1,label = "Id.Func.")
+ax3.plot(x,x,color="r",linewidth=1,label = "Id.Func.")
 msg="Func. Negativa"
 ax3.plot(x,y2,color="b",linewidth=1,label=msg)
 ax3.legend()
