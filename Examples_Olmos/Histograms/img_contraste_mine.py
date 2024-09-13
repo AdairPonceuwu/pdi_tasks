@@ -47,29 +47,37 @@ print("Valor acumulativo para a_prim_high:", np.round(MN * (1 - q_high)))
 print("a_prim_low:", a_prim_low)
 print("a_prim_high:", a_prim_high)
 
-# Creamos una matriz de zeros similar  ala imagen original
-img = np.zeros_like(image)
+# Creamos una matriz de zeros similar a la imagen original
+# img = np.zeros_like(image)
 
 #Minimos y máximos
 a_min = 0
 a_max = 255
 
-for i, row in enumerate(image): 
-    for j, value in enumerate(row):  
-        if value <= a_prim_low:
-            img[i, j] = np.uint8(a_min)
-        elif a_prim_low < value < a_prim_high:
-            img[i, j] = np.uint8(a_min + (value - a_prim_low) * ((a_max - a_min) / (a_prim_high - a_prim_low)))
-        else:  # value >= a_prim_high
-            img[i, j] = np.uint8(a_max)
+x = np.linspace(0, 255, 256)
+
+y2 = np.array((a_min + (x - a_prim_low) * ((a_max - a_min) / (a_prim_high - a_prim_low))).astype(np.uint8))
+
+# Define gamma function using the lookup table
+ajuste = lambda m: y2[m]
+
+# Apply the gamma transformation to the image
+image_ajustada = np.array(np.vectorize(ajuste)(image), dtype='uint8')
+
+# Ajustar los valores extremos en un solo paso
+image_ajustada[image <= a_prim_low] = a_min
+image_ajustada[image >= a_prim_high] = a_max
 
 # Dibujar las imagenes y graficar los histogramas
-fig = plt.figure(figsize=[14, 14])
+fig = plt.figure(figsize=[20, 20])
 
-ax1=fig.add_subplot(2, 2, 1)
-ax2=fig.add_subplot(2, 2, 2)
-ax3=fig.add_subplot(2, 2, 3)
-ax4=fig.add_subplot(2, 2, 4)
+ax1=fig.add_subplot(2, 3, 1)
+ax2=fig.add_subplot(2, 3, 2)
+ax3=fig.add_subplot(2, 3, 3)
+
+ax4=fig.add_subplot(2, 3, 4)
+ax5=fig.add_subplot(2, 3, 5)
+ax6=fig.add_subplot(2, 3, 6)
 
 #Imagen Original
 ax1.imshow(image, cmap='gray')
@@ -77,20 +85,28 @@ ax1.set_title('Imagen')
 ax1.axis('off')
 
 # Histograma de la imagen normal
-hist = cv2.calcHist([image], [0], None, [256], [0, 256])
-
+hist /= hist.sum()
+Hi = np.cumsum(hist)
 ax2.plot(hist, color='black')
 ax2.set_title('Histograma de Imagen')
 
+ax3.plot(Hi, color='black')
+ax3.set_title('Histograma Acumulativo Imagen')
+
 # Imagen ajustada
-ax3.imshow(img, cmap='gray')
-ax3.set_title('Imagen Ajustada')
-ax3.axis('off')
+ax4.imshow(image_ajustada, cmap='gray')
+ax4.set_title('Imagen Ajustada')
+ax4.axis('off')
 
 # Histograma de la imagen ajustada
-hist_ajustada = cv2.calcHist([img], [0], None, [256], [0, 256])
+hist_ajustada = cv2.calcHist([image_ajustada], [0], None, [256], [0, 256])
+hist_ajustada /= hist_ajustada.sum()
+Hi_aj = np.cumsum(hist_ajustada)
 
-ax4.plot(hist_ajustada, color='black')
-ax4.set_title('Histograma de Imagen Ajustada')
+ax5.plot(hist_ajustada, color='black')
+ax5.set_title('Histograma de Imagen Ajustada')
+
+ax6.plot(Hi_aj, color='black')
+ax6.set_title('Histograma Acumulativo Imagen Ajustada')
 
 plt.show()
