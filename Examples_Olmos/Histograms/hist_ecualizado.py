@@ -44,7 +44,8 @@ ax5=fig.add_subplot(2, 3, 5)
 ax6=fig.add_subplot(2, 3, 6)
 
 #Imagen Original
-ax1.imshow(image, cmap='gray')
+image_Gray = cv2.merge([image, image, image])
+ax1.imshow(image_Gray, cmap='gray')
 ax1.set_title('Imagen')
 ax1.axis('off')
 

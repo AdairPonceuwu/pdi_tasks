@@ -19,7 +19,7 @@ image_HSV = cv2.cvtColor(image_BGR, cv2.COLOR_BGR2HSV)
 (h, s, v) = cv2.split(image_HSV)
 
 # Calcular el histograma del canal H (matiz)
-hist = cv2.calcHist([v], [0], None, [256], [0, 256])
+hist = cv2.calcHist([h], [0], None, [180], [0, 180])
 
 # Calcular el histograma acumulativo
 Hi = np.cumsum(hist)
@@ -31,16 +31,16 @@ MN = Hi[-1]
 ecua_hi = np.ma.masked_equal(Hi, 0)
 
 # Ecuación para ecualizar el histograma
-ecua_hi = ((ecua_hi - ecua_hi.min()) * 255) / MN
+ecua_hi = ((ecua_hi - ecua_hi.min()) * 180) / ((MN))
 
 # Remplazar todos los valores enmascarados con un valor de 0
 ecua_hi_mask = np.ma.filled(ecua_hi, 0).astype('uint8')
 
 # Remapeo del canal H usando el histograma ecualizado
-v_eq = ecua_hi_mask[v]
+h_eq = ecua_hi_mask[h]
 
 # Unir los canales H ecualizado, y los canales S y V originales
-image_HSV_eq = cv2.merge([h, s, v_eq])
+image_HSV_eq = cv2.merge([h_eq, s, v])
 
 # Convertir la imagen HSV de vuelta a RGB
 img_eq = cv2.cvtColor(image_HSV_eq, cv2.COLOR_HSV2BGR)
@@ -73,8 +73,8 @@ for i, color in enumerate(colors):
         ax3.plot(Hi, color=color)
         ax3.set_title('Histograma Acumulativo Imagen Original (RGB)')
     else:
-        ax2.plot(hist, color=color, alpha=0.5)
-        ax3.plot(Hi, color=color, alpha=0.5)
+        ax2.plot(hist, color=color)
+        ax3.plot(Hi, color=color)
 
 # Mostrar imagen ajustada
 ax4.imshow(cv2.cvtColor(img_eq, cv2.COLOR_BGR2RGB))
@@ -92,8 +92,8 @@ for i, color in enumerate(colors):
         ax6.plot(Hi_aj, color=color)
         ax6.set_title('Histograma Acumulativo Imagen Ajustada (RGB)')
     else:
-        ax5.plot(hist_ajustada, color=color, alpha=0.5)
-        ax6.plot(Hi_aj, color=color, alpha=0.5)
+        ax5.plot(hist_ajustada, color=color)
+        ax6.plot(Hi_aj, color=color)
 
 plt.tight_layout()
 plt.show()
