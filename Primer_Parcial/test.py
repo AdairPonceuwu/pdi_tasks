@@ -181,14 +181,14 @@ def procesar_frame(cuadro, gamma_valor=1.0):
     histograma_s_autoajustado += hist_s_res.flatten()
     histograma_v_autoajustado += hist_v_res.flatten()
     
-    # Normalización post-procesamiento para garantizar que los valores estén en el rango adecuado
+    # Normalización para garantizar que los valores estén en el rango adecuado
     s_normalizado = normalizacion_histograma(s_res, 255.0)
     v_normalizado = normalizacion_histograma(v_res, 255.0)
     
     hist_v_normalizado = cv2.calcHist([v_normalizado], [0], None, [256], [0, 256])
     histograma_v_normalizado += hist_v_normalizado.flatten()
         
-    # Aplicar corrección gamma o logarítmica en el canal V
+    #Aplicar corrección gamma y logarítmica 
     h_corregido = filtro_logaritmico(h)
     v_corregido = correccion_gamma(v_normalizado, gamma=gamma_valor)
     
@@ -239,13 +239,14 @@ def procesar_video(ruta_video, gamma_valor=1.0):
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # Guardar el video procesado
-    salida = cv2.VideoWriter('lineas_procesadas.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (ancho, alto), isColor=False)
+    #salida = cv2.VideoWriter('lineas_procesadas.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (ancho, alto), isColor=False)
     
     # Crear una ventana para mostrar el video
     cv2.namedWindow('Líneas del carril', cv2.WINDOW_NORMAL)
 
     paused = False  # Variable para controlar el estado de pausa
-
+    
+    #Comenzamos con la captura de cada frame y su procesado
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -254,7 +255,7 @@ def procesar_video(ruta_video, gamma_valor=1.0):
         if not paused:
             # Procesar cada frame
             procesado = procesar_frame(frame, gamma_valor=gamma_valor)
-            salida.write(procesado)
+            #salida.write(procesado)
             cv2.imshow('Líneas del carril', procesado)
 
         key = cv2.waitKey(1) & 0xFF
@@ -275,7 +276,7 @@ def procesar_video(ruta_video, gamma_valor=1.0):
 
     # Finalizamos el proceso
     cap.release()
-    salida.release()
+    #salida.release()
     cv2.destroyAllWindows()
 
 # Mostrar histogramas globales acumulados

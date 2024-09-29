@@ -141,7 +141,6 @@ def procesar_frame(cuadro, gamma_valor=1.0):
     # Normalización para garantizar que los valores estén en el rango adecuado
     s_normalizado = normalizacion_histograma(s_res, 255.0)
     v_normalizado = normalizacion_histograma(v_res, 255.0)
-    #h_normalizado = normalizacion_histograma(h, 180.0)
         
     #Aplicar corrección gamma y logarítmica 
     h_corregido = filtro_logaritmico(h)
