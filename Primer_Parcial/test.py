@@ -140,7 +140,7 @@ def filtro_logaritmico(h_channel):
     # Convertimos el resultado de nuevo a uint8 para su uso en imágenes
     return h_aclarado.astype(np.uint8)
 
-def procesar_frame(cuadro, gamma_valor=1.0):
+def procesar_frame(frame, gamma_valor=1.0):
     global histograma_h_inicial, histograma_s_inicial, histograma_v_inicial
     global histograma_s_ecualizado, histograma_v_ecualizado
     global histograma_s_autoajustado, histograma_v_autoajustado
@@ -148,7 +148,7 @@ def procesar_frame(cuadro, gamma_valor=1.0):
     global histograma_h_final, histograma_s_final, histograma_v_final
     
     # Convertir todo el cuadro al espacio de color HSV
-    hsv = cv2.cvtColor(cuadro, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Separar los canales H, S, V
     h, s, v = cv2.split(hsv)
@@ -200,10 +200,10 @@ def procesar_frame(cuadro, gamma_valor=1.0):
     histograma_s_final += hist_s_final.flatten()
     histograma_v_final += hist_v_final.flatten()
     
-    # Reconstruir la imagen HSV con el canal V ajustado
+    # Reconstruir la imagen HSV con los canales procesados
     hsv_ajustado = cv2.merge([h_corregido, s_normalizado, v_corregido])
     
-    # Filtrar áreas brillantes y baja saturación para detectar líneas blancas
+    # Detectar líneas blancas en el espacio HSV
     mascara_blanca = cv2.inRange(hsv_ajustado, (0, 0, 200), (180, 60, 255))
 
     # Detectar la línea amarilla en el espacio HSV
@@ -213,12 +213,12 @@ def procesar_frame(cuadro, gamma_valor=1.0):
     mascara_combined = cv2.bitwise_or(mascara_blanca, mascara_amarilla)
     
     # Obtener el tamaño del frame
-    alto, ancho = cuadro.shape[:2]
+    alto, ancho = frame.shape[:2]
 
-    # Crear una máscara negra que cubra más de la mitad superior
+    # Crear una máscara negra que cubra mas de la mitad superior
     mascara_combined[:int(alto * 0.6), :] = 0  
 
-    # Eliminar un 20% del lado izquierdo
+   # Establecer un 20% del lado  en negro
     mascara_combined[:, :int(ancho * 0.2)] = 0  
 
     # Regresamos el frame procesado
@@ -286,7 +286,7 @@ def mostrar_histogramas_globales():
     # Histograma global inicial para canal h
     plt.subplot(3, 4, 1)
     plt.plot(histograma_h_inicial, color='red')
-    plt.title('Histograma Global H Inicial')
+    plt.title('Histograma h Inicial')
     plt.xlabel('Intensidad de píxel')
     plt.ylabel('Frecuencia')
     

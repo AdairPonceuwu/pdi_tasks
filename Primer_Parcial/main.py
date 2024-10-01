@@ -96,19 +96,6 @@ def normalizacion_histograma(channel, channel_max):
     #Regresamos el canal normalizado
     return normalized_channel
 
-# Corrección gamma
-def correccion_gamma(channel, gamma=1.0):
-    #Definimos el valor de gamma
-    gamma = 1.0/gamma
-    
-    #Mapeamos gamma
-    mapeo = np.array([(255 * (i / 255.0) ** gamma) for i in np.arange(0, 256)]).astype("uint8")
-    
-    #Mapea el canal con los valores gamma
-    channel_gamma = mapeo[channel]
-    
-    #Regresamos el canal con la correcion aplicada
-    return channel_gamma
 
 def filtro_logaritmico(h_channel):
     # Convertimos el canal con valores flotantes
@@ -123,14 +110,28 @@ def filtro_logaritmico(h_channel):
     # Convertimos el resultado de nuevo a uint8 para su uso en imágenes
     return h_aclarado.astype(np.uint8)
 
-def procesar_frame(cuadro, gamma_valor=1.0):
-    # Convertir todo el cuadro al espacio de color HSV
-    hsv = cv2.cvtColor(cuadro, cv2.COLOR_BGR2HSV)
+# Corrección gamma
+def correccion_gamma(channel, gamma=1.0):
+    #Definimos el valor de gamma
+    gamma = 1.0/gamma
+    
+    #Mapeamos gamma
+    mapeo = np.array([(255 * (i / 255.0) ** gamma) for i in np.arange(0, 256)]).astype("uint8")
+    
+    #Mapea el canal con los valores gamma
+    channel_gamma = mapeo[channel]
+    
+    #Regresamos el canal con la correcion aplicada
+    return channel_gamma
+
+def procesar_frame(frame, gamma_valor=1.0):
+    # Convertir todo el fotograma al espacio de color HSV
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Separar los canales H, S, V
     h, s, v = cv2.split(hsv)
 
-    # Aplicar ecualización de histograma primero
+    # Aplicar ecualización de histograma
     s_ecualizado = ecualizacion_histograma(s)
     v_ecualizado = ecualizacion_histograma(v)
 
@@ -142,14 +143,14 @@ def procesar_frame(cuadro, gamma_valor=1.0):
     s_normalizado = normalizacion_histograma(s_res, 255.0)
     v_normalizado = normalizacion_histograma(v_res, 255.0)
         
-    #Aplicar corrección gamma y logarítmica 
+    #Aplicar corrección gamma y filtro logarítmica 
     h_corregido = filtro_logaritmico(h)
     v_corregido = correccion_gamma(v_normalizado, gamma=gamma_valor)
     
-    # Reconstruir la imagen HSV con el canal V ajustado
+    # Reconstruir la imagen HSV con los canales procesados
     hsv_ajustado = cv2.merge([h_corregido, s_normalizado, v_corregido])
     
-    # Filtrar áreas brillantes y baja saturación para detectar líneas blancas
+    # Detectar líneas blancas en el espacio HSV
     mascara_blanca = cv2.inRange(hsv_ajustado, (0, 0, 200), (180, 60, 255))
 
     # Detectar la línea amarilla en el espacio HSV
@@ -159,12 +160,12 @@ def procesar_frame(cuadro, gamma_valor=1.0):
     mascara_combined = cv2.bitwise_or(mascara_blanca, mascara_amarilla)
     
     # Obtener el tamaño del frame
-    alto, ancho = cuadro.shape[:2]
+    alto, ancho = frame.shape[:2]
 
     # Crear una máscara negra que cubra mas de la mitad superior
     mascara_combined[:int(alto * 0.6), :] = 0  
 
-    # Eliminar un 20% del lado izquierdo
+    # Establecer un 20% del lado  en negro
     mascara_combined[:, :int(ancho * 0.2)] = 0  
 
     #Regresamos el frame procesado

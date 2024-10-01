@@ -1,0 +1,12 @@
+Existen dos archivos, para ambos archivos
+el video debe de estar en la carpeta donde se ejecuta el proyecto y se debe de pasar
+como parámetro despues de un "-v".
+de modo que se pueda ejecutar por ejemplo con la intrucción: python main.py -v lineas.mp4
+lo mismo es para el archivo test: python test.py -v lineas.mp4
+--
+El programa main.py es el que guarda el video ya procesado.
+--
+El programa test.py es el que se uso para hacer un análisis de los histogramas, este archivo NO
+guarda el video ya procesado, es decir lo procesa, pero no lo guarda. 
+En el programa test se puede pausar el video para ir observando los histogramas. 
+(pausar con la tecla p y reanudar con la tecla r una vez que se cierra manualmente la ventana de los histogramas). 
