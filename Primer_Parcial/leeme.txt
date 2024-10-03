@@ -4,7 +4,7 @@ como parámetro despues de un "-v".
 de modo que se pueda ejecutar por ejemplo con la intrucción: python main.py -v lineas.mp4
 lo mismo es para el archivo test: python test.py -v lineas.mp4
 --
-El programa main.py es el que guarda el video ya procesado.
+El programa main.py es el que guarda el video ya procesado. el video es nombrado como: "lineas_procesadas.mp4".
 --
 El programa test.py es el que se uso para hacer un análisis de los histogramas, este archivo NO
 guarda el video ya procesado, es decir lo procesa, pero no lo guarda. 

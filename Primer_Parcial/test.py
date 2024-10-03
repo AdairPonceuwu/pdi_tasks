@@ -141,6 +141,7 @@ def filtro_logaritmico(h_channel):
     return h_aclarado.astype(np.uint8)
 
 def procesar_frame(frame, gamma_valor=1.0):
+    global mascara_blanca, mascara_amarilla, hsv_ajustado, hsv 
     global histograma_h_inicial, histograma_s_inicial, histograma_v_inicial
     global histograma_s_ecualizado, histograma_v_ecualizado
     global histograma_s_autoajustado, histograma_v_autoajustado
@@ -265,6 +266,7 @@ def procesar_video(ruta_video, gamma_valor=1.0):
             paused = True
             # Mostrar histogramas 
             mostrar_histogramas_globales()
+            mostrar_mascaras()
 
         # Reanudar
         elif key == ord('r'):
@@ -362,6 +364,42 @@ def mostrar_histogramas_globales():
     
     plt.tight_layout()
     plt.show()
+    
+    
+def mostrar_mascaras():
+    global mascara_blanca, mascara_amarilla, hsv_ajustado, hsv
+
+    # Crear una nueva figura para las máscaras y las imágenes HSV
+    plt.figure(figsize=(12, 6))
+
+    # Mostrar máscara blanca
+    plt.subplot(1, 4, 1)
+    plt.imshow(mascara_blanca, cmap='gray')
+    plt.title('Máscara blanca')
+    plt.axis('off')  # Ocultar los ejes
+
+    # Mostrar máscara amarilla
+    plt.subplot(1, 4, 2)
+    plt.imshow(mascara_amarilla, cmap='gray')
+    plt.title('Máscara amarilla')
+    plt.axis('off')  # Ocultar los ejes
+
+    # Mostrar imagen HSV original
+    plt.subplot(1, 4, 3)
+    plt.imshow(cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB))
+    plt.title('Imagen HSV original')
+    plt.axis('off')  # Ocultar los ejes
+
+    # Mostrar imagen HSV ajustada
+    plt.subplot(1, 4, 4)
+    plt.imshow(cv2.cvtColor(hsv_ajustado, cv2.COLOR_HSV2RGB))
+    plt.title('Imagen HSV ajustada')
+    plt.axis('off')  # Ocultar los ejes
+
+    plt.tight_layout()
+    plt.show()
+
+
 
 # Llamar a la función para procesar el video
 ruta_video = args["video"]
@@ -369,3 +407,4 @@ procesar_video(ruta_video, gamma_valor=0.07)
 
 #Cuando finalice, mostramos los histogramas
 mostrar_histogramas_globales()
+mostrar_mascaras()
