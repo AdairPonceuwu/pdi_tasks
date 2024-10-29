@@ -58,9 +58,8 @@ if not cap.isOpened():
 
 frame_count = 0  
 face_image_count = 0  
-all_faces = []  # Lista de rostros
+all_faces = [] 
 
-# Define el porcentaje de escala
 scale_percent = 50  
 
 while True:
@@ -90,7 +89,7 @@ while True:
             #Guardamos el rostro encontrado
             all_faces.append(filtered_face)
 
-            #Redimensionamos la imagen para mostrarla
+            #Aumentamos el contador de imagenes
             face_image_count += 1
 
             # Mostramos el enfoque de las caras en el video
